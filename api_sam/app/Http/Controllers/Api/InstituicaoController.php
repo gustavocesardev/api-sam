@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Http\Resources\InstituicaoResource;
+use App\Http\Utils\ApiResponse;
 use App\Http\Requests\InstituicaoRequest;
+use App\Http\Controllers\Controller;
+
 use App\Application\Services\InstituicaoService;
+use App\Domain\Exceptions\AppException;
+
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -19,29 +24,84 @@ class InstituicaoController extends Controller
 
     public function index(): JsonResponse
     {
-        return response()->json($this->instituicaoService->listAll());
+
+        try {
+
+            $instituicoes = $this->instituicaoService->listAll();
+            return ApiResponse::success(
+                InstituicaoResource::collection($instituicoes), 
+                'Listagem de instituições ativas', 
+                Response::HTTP_OK
+            );
+
+        } catch(AppException $exception) {
+            return ApiResponse::error($exception);
+        }
     }
 
     public function store(InstituicaoRequest $request): JsonResponse
     {
-        $instituicao = $this->instituicaoService->store($request->validated());
-        return response()->json($instituicao, Response::HTTP_CREATED);
+        try {
+
+            $instituicao = $this->instituicaoService->store($request->validated());
+            return ApiResponse::success(
+                new InstituicaoResource($instituicao), 
+                'Instituição criada com sucesso', 
+                Response::HTTP_CREATED
+            );
+
+        } catch(AppException $exception) {
+            return ApiResponse::error($exception);
+        }
     }
 
     public function show(string $id): JsonResponse
     {
-        return response()->json($this->instituicaoService->find($id));
+        try {
+
+            $instituicao = $this->instituicaoService->find($id);
+            return ApiResponse::success(
+                new InstituicaoResource($instituicao), 
+                'Detalhes da instituição', 
+                Response::HTTP_CREATED
+            );
+
+        } catch(AppException $exception) {
+            return ApiResponse::error($exception);
+        }
     }
 
     public function update(InstituicaoRequest $request, string $id): JsonResponse
     {
-        $instituicao = $this->instituicaoService->update($id, $request->validated());
-        return response()->json($instituicao);
+        try {
+
+            $instituicao = $this->instituicaoService->update($id, $request->validated());
+
+            return ApiResponse::success(
+                new InstituicaoResource($instituicao), 
+                'Instituição atualizada com sucesso', 
+                Response::HTTP_OK
+            );
+            
+        } catch (AppException $exception) {
+            return ApiResponse::error($exception);
+        }
     }
 
     public function destroy(string $id): JsonResponse
     {
-        $this->instituicaoService->delete($id);
-        return response()->json(null, Response::HTTP_NO_CONTENT); // Retornando um JsonResponse
+        try {
+
+            $this->instituicaoService->delete($id);
+
+            return ApiResponse::success(
+                null, 
+                'Instituição excluida com sucesso', 
+                Response::HTTP_NO_CONTENT
+            );
+
+        } catch(AppException $exception) {
+            return ApiResponse::error($exception);
+        }
     }
 }

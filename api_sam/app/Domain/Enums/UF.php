@@ -31,4 +31,9 @@ enum UF: string
     case SP = 'SP'; // São Paulo
     case SE = 'SE'; // Sergipe
     case TO = 'TO'; // Tocantins
+
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

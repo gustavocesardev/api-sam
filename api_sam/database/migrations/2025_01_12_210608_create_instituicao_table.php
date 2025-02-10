@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('razao_social', 70);
             $table->enum('tipo_instituicao', ['PUB', 'PRI']);
+            $table->string('tipo_logradouro', 100);
             $table->string('logradouro', 100);
             $table->integer('numero')->unsigned();
             $table->string('cidade', 70);

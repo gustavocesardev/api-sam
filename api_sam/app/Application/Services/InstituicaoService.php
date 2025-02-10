@@ -2,41 +2,64 @@
 
 namespace App\Application\Services;
 
-use App\Infrastructure\Repositories\InstituicaoRepository;
-use App\Http\Resources\InstituicaoDTO;
+use App\Domain\Enums\ErrorContext;
+use App\Domain\Exceptions\DuplicateEntryException;
+use App\Domain\Model\Instituicao;
+use App\Domain\Repository\InstituicaoRepositoryInterface;
+use Illuminate\Support\Collection;
+use Illuminate\Http\Response;
 
 class InstituicaoService
 {
-    private InstituicaoRepository $instituicaoRepository;
+    private InstituicaoRepositoryInterface $instituicaoRepository;
 
-    public function __construct(InstituicaoRepository $instituicaoRepository)
+    public function __construct(InstituicaoRepositoryInterface $instituicaoRepository)
     {
         $this->instituicaoRepository = $instituicaoRepository;
     }
 
-    public function listAll(): array
+    public function listAll(): Collection
     {
-        return $this->instituicaoRepository->findAll()->map(function ($instituicao) {
-            return InstituicaoDTO::fromDomain($instituicao)->toArray();
-        })->toArray();
+        return $this->instituicaoRepository->findAll();
     }
 
-    public function store(array $data): InstituicaoDTO
+    public function store(array $data): Instituicao
     {
-        $instituicao = $this->instituicaoRepository->store($data);
-        return InstituicaoDTO::fromDomain($instituicao);
+        // Verificando se o dominio já existe
+        $instituicaoDominio = $this->instituicaoRepository->findByDominio($data['dominio_email_institucional']);
+
+        if (!empty($instituicaoDominio)) 
+        {
+            throw new DuplicateEntryException(
+                'dominio_email_institucional',
+                ErrorContext::CADASTRO_INSTITUICAO,
+                Response::HTTP_CONFLICT
+            );
+        }
+            
+        return $this->instituicaoRepository->store($data);
     }
 
-    public function find(int $id): array
+    public function find(int $id): Instituicao
     {
-        $instituicao = $this->instituicaoRepository->find($id);
-        return InstituicaoDTO::fromDomain($instituicao)->toArray();
+        return $this->instituicaoRepository->find($id);
     }
 
-    public function update(int $id, array $data): array
+    public function update(int $id, array $data): Instituicao
     {
-        $instituicao = $this->instituicaoRepository->update($id, $data);
-        return InstituicaoDTO::fromDomain($instituicao)->toArray();
+        // Verificando se o dominio já existe
+        $instituicaoDominio = $this->instituicaoRepository->findByDominio($data['dominio_email_institucional']);
+
+        if (!empty($instituicaoDominio)) 
+        {
+            throw new DuplicateEntryException(
+                'dominio_email_institucional',
+                ErrorContext::UPDATE_INSTITUICAO,
+                Response::HTTP_CONFLICT
+            );
+        }
+
+        return $this->instituicaoRepository->update($id, $data);
     }
 
     public function delete(int $id): void

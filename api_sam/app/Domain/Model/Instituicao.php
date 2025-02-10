@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Infrastructure\Models;
+namespace App\Domain\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EloquentInstituicao extends Model
+class Instituicao extends Model
 {
     protected $table = 'instituicao';
     protected $fillable = [
         'razao_social',
         'tipo_instituicao',
+        'tipo_logradouro',
         'logradouro',
         'numero',
         'cidade',

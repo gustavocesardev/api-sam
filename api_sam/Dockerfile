@@ -1,8 +1,12 @@
 # Use a imagem oficial do PHP com extensões necessárias para o Laravel
 FROM php:8.2-fpm
 
+# Configurar fuso horário e corrigir problema de data nos repositórios
+RUN apt-get update || true && apt-get install -y tzdata
+RUN ln -fs /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
+
 # Instalar dependências necessárias
-RUN apt-get update && apt-get install -y \
+RUN apt-get update --allow-releaseinfo-change && apt-get install -y \
     libpq-dev \
     unzip \
     git \
