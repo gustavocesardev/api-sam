@@ -21,8 +21,10 @@ return new class extends Migration
             $table->string('cidade', 70);
             $table->integer('codigo_municipio')->unsigned();
             $table->char('uf', 2);
-            $table->string('dominio_email_institucional', 100)->unique();
+            $table->string('dominio_email_institucional', 100);
             $table->string('imagem', 150)->nullable();
+            $table->enum('excluido', ['S', 'N'])->default('N');
+            $table->date('excluido_data')->nullable();
             $table->timestamps();
         });
     }

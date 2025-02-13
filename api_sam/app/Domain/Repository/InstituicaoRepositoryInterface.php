@@ -16,5 +16,5 @@ interface InstituicaoRepositoryInterface
 
     public function update(int $id, array $data): Instituicao;
 
-    public function delete(int $id): mixed;
+    public function delete(int $id): bool;
 }

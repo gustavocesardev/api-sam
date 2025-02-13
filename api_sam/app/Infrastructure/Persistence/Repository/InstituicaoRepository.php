@@ -16,8 +16,7 @@ class InstituicaoRepository implements InstituicaoRepositoryInterface
 
     public function find(int $id): Instituicao
     {
-        $instituicao = Instituicao::findOrFail($id);
-        return $instituicao;
+        return Instituicao::findOrFail($id);
     }
 
     public function findByDominio(string $dominio): ?Instituicao
@@ -27,21 +26,20 @@ class InstituicaoRepository implements InstituicaoRepositoryInterface
 
     public function store(array $data): Instituicao
     {
-        $instituicaoEloquent = Instituicao::create($data);
-        return $instituicaoEloquent;
+        return Instituicao::create($data);
     }
 
     public function update(int $id, array $data): Instituicao
     {
-        $instituicaoEloquent = Instituicao::findOrFail($id);
-        $instituicaoEloquent->update($data);
+        $instituicao = Instituicao::findOrFail($id);
+        $instituicao->fill($data)->save();
 
-        return $instituicaoEloquent;
+        return $instituicao;
     }
 
     public function delete(int $id): bool
     {
-        $instituicaoEloquent = Instituicao::findOrFail($id);
-        return $instituicaoEloquent->delete();
+        $instituicao = Instituicao::findOrFail($id);
+        return $instituicao->excluir();
     }
 }

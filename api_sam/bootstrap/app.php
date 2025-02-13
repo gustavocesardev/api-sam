@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -29,7 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 {
                     return response()->json([
                         'error'   => true,
-                        'message' => $e->getMessage(),
+                        'message' => $e->errors(),
                         'context' => 'app.error',
                         'code'    => 422
                     ], status: 422);
@@ -48,6 +49,16 @@ return Application::configure(basePath: dirname(__DIR__))
                     return response()->json([
                         'error'     => true,
                         'message'   => 'Recurso não encontrado.',
+                        'context'   => 'app.error',
+                        'code'      => 404
+                    ], 404);
+                
+                } 
+                else if ($e instanceof ModelNotFoundException) {
+
+                    return response()->json([
+                        'error'     => true,
+                        'message'   => 'A entidade solicitada não existe ou não foi encontrada.',
                         'context'   => 'app.error',
                         'code'      => 404
                     ], 404);

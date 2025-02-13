@@ -2,64 +2,100 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Application\Services\CursoService;
+use App\Domain\Exceptions\AppException;
+
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\CursoRequest;
+use App\Http\Resources\CursoResource;
+use App\Http\Utils\ApiResponse;
+
+use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 class CursoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(private CursoService $cursoService) {}
+
+    public function index(): JsonResponse
     {
-        //
+        try {
+
+            $cursos = $this->cursoService->listAll();
+            return ApiResponse::success(
+                CursoResource::collection($cursos), 
+                'Listagem de cursos ativos.', 
+                Response::HTTP_OK
+            );
+
+        } catch(AppException $exception) {
+            return ApiResponse::error($exception);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(CursoRequest $request): JsonResponse
     {
-        //
+        try {
+
+            $curso = $this->cursoService->store($request->validated());
+            return ApiResponse::success(
+                new CursoResource($curso), 
+                'Curso criado com sucesso.', 
+                Response::HTTP_CREATED
+            );
+
+        } catch(AppException $exception) {
+            return ApiResponse::error($exception);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(string $id): JsonResponse
     {
-        //
+        try {
+
+            $curso = $this->cursoService->find($id);
+            return ApiResponse::success(
+                new CursoResource($curso), 
+                'Detalhes do curso.', 
+                Response::HTTP_OK
+            );
+
+        } catch(AppException $exception) {
+            return ApiResponse::error($exception);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(CursoRequest $request, string $id)
     {
-        //
+        try {
+
+            $curso = $this->cursoService->update($id, $request->validated());
+
+            return ApiResponse::success(
+                new CursoResource($curso), 
+                'Curso atualizado com sucesso.', 
+                Response::HTTP_OK
+            );
+            
+        } catch (AppException $exception) {
+            return ApiResponse::error($exception);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy(string $id): JsonResponse
     {
-        //
-    }
+        try {
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+            $this->cursoService->delete($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            return ApiResponse::success(
+                null, 
+                'Curso excluido com sucesso.', 
+                Response::HTTP_OK
+            );
+
+        } catch(AppException $exception) {
+            return ApiResponse::error($exception);
+        }
     }
 }

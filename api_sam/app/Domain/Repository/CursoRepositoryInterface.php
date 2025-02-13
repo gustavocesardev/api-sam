@@ -15,5 +15,5 @@ interface CursoRepositoryInterface
 
     public function update(int $id, array $data): Curso;
 
-    public function delete(int $id): mixed;
+    public function delete(int $id): bool;
 }
